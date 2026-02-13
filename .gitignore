@@ -1,0 +1,10 @@
+.DS_Store
+dataset_ds005284.mat
+dataset_ds007169.mat
+eeg_dataset.mat
+Figures.pptx
+PrepareDataset_ds007169.m
+bva-io-master/
+ds005284/
+ds007169/
+eeglab2022.1/

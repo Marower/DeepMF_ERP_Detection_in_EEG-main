@@ -27,3 +27,32 @@ class EncoderDecoder(nn.Module):
         x = self.encoder(x)
         x = self.decoder(x)
         return x
+
+class DeepMatchedDetector(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.encoder = nn.Sequential(
+            nn.Conv1d(4, 6, 200, stride=1, padding=1),
+            nn.ReLU(),
+            nn.Dropout(0.5),
+
+            nn.Conv1d(6, 6, 50, stride=1, padding=1),
+            nn.ReLU(),
+            nn.Dropout(0.5),
+
+            nn.Conv1d(6, 6, 50, stride=1, padding=1),
+            nn.ReLU(),
+        )
+
+        self.detector = nn.Sequential(
+            nn.Conv1d(6, 6, 50),
+            nn.Sigmoid(),
+            nn.Flatten(),
+            nn.Linear(960, 500)
+        )
+
+    def forward(self, x):
+        x = self.encoder(x)
+        x = self.detector(x)
+        return x

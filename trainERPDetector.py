@@ -57,15 +57,18 @@ for i in range(N):
         pretrained_model.encoder.state_dict()
     )
     
-    criterion = torch.nn.BCELoss() 
+
+    # Suppose positive events (EP) are rare
+    pos_weight = torch.tensor([10.0], device=device)  # weight for class 1
+
+    criterion = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     optimizer = torch.optim.Adam(detector_model.parameters(), lr=1e-3)
 
     for epoch in range(250):
         running_loss = 0.0
         for xb, yb in train_loader:
             xb = xb.to(device)  # (batch, 4, 500)
-            yb = yb.squeeze(1) 
-            yb = yb.to(device)  # (batch,  500)
+            yb = yb.to(device)  # (batch, 1, 500)
 
             output = detector_model(xb)  # (batch, 1, 500)
 
@@ -78,7 +81,7 @@ for i in range(N):
             running_loss += loss.item() * xb.size(0)
 
         epoch_loss = running_loss / len(train_loader.dataset)
-        print(f"Epoch {epoch+1}, Loss: {epoch_loss:.4f}")
+        print(f"Epoch {epoch+1}, Loss: {epoch_loss:.5f}")
 
         # Save model after training
     if use_templates:
@@ -88,4 +91,4 @@ for i in range(N):
 
     save_file = save_file + str(i) + ".pth"
     torch.save(detector_model.state_dict(), save_file)
-    print("Model saved successfully.")
+    print("Model saved successfully: " + save_file)

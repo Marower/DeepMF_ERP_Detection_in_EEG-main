@@ -47,12 +47,15 @@ class DeepMatchedDetector(nn.Module):
 
         self.detector = nn.Sequential(
             nn.Conv1d(6, 6, 50),
-            nn.Sigmoid(),
+            nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(960, 500)
+            nn.Linear(960, 500),
+            nn.ReLU(),
+            nn.Linear(500, 500)  # new layer
         )
 
     def forward(self, x):
         x = self.encoder(x)
         x = self.detector(x)
+        x = x.unsqueeze(1) 
         return x

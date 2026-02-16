@@ -28,6 +28,11 @@ The results are saved in channels_templates.mat.
 
 In python:
 
-6. Run trainEncoderDecoder.py to train models. 
+6. Run trainEncoderDecoder.py to train encoder-decoders. 
 Set useTemplates flag if you want to use templates to initialize model. Trained model are stord in repositorium (TemplateInitializedEncoderDecoder.pth and RandomInitializedEncoderDecoder.pth)
-7. 
+
+7. Run trainERPDetector to train models for leave-one-out validation. The encoder part of the detector model is initialized using the encoder-decoder from step 6. The use_templates flag determines whether the initialized encoder-decoder is used.
+
+8. The Jupyter notebook testERPDetector.ipynb contains basic tests to verify the correct operation of the models.
+
+9. 

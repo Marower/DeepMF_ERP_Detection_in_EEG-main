@@ -13,7 +13,7 @@ useTemplates = False
 if useTemplates:
     templatesFile = 'channels_templates.mat'
     with h5py.File(templatesFile, 'r') as f:
-        templates = f['templates'][:]   # change key if needed
+        templates = f['templates'][:]  
 
     templates = np.array(templates)
     templates = templates.T

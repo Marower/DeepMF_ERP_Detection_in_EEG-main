@@ -29,11 +29,11 @@ for subi=1:length(data)
         start = latency-(window_size - template_size);
         for i = 1:num_windows
             
-            idx_start = start + (i-1)*step + randi([0 step-1])+ 1;
+            idx_start = start + (i-1)*step + randi([0 step-1]);
             idx_end   = idx_start + window_size - 1;
             win_idx = (eventi-1)*num_windows + i;
             x_positive(win_idx,:,:) = EEG_signals(:, idx_start:idx_end);
-            y_positive(win_idx,1,latency-start) = 1;
+            y_positive(win_idx,1,latency-idx_start) = 1;
             if latency >= idx_start && latency <= idx_end
                
             else

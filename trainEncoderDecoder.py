@@ -4,14 +4,18 @@ import torch
 from torch.utils.data import TensorDataset, DataLoader
 from DeepMathedFilterModel import EncoderDecoder
 
-
-
+useTemplates = True
+useHe = False
 print(torch.backends.mps.is_available())
 device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 model = EncoderDecoder().to(device)
-useTemplates = False
+
 if useTemplates:
-    templatesFile = 'channels_templates.mat'
+    if useHe:
+        templatesFile = 'channels_templates_He.mat'
+    else:
+        templatesFile = 'channels_templates.mat'
+        
     with h5py.File(templatesFile, 'r') as f:
         templates = f['templates'][:]  
 
@@ -42,7 +46,7 @@ loader = DataLoader(dataset, batch_size=32, shuffle=True)
 criterion = torch.nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
-for epoch in range(250):
+for epoch in range(150):
     for xb in loader:
         xb = xb[0].to(device)
 
@@ -57,7 +61,10 @@ for epoch in range(250):
 
 # Save model after training
 if useTemplates:
-    torch.save(model.state_dict(), "TemplateInitializedEncoderDecoder.pth")
+    if(useHe):
+        torch.save(model.state_dict(), "TemplateInitializedEncoderDecoder_He.pth")
+    else:
+        torch.save(model.state_dict(), "TemplateInitializedEncoderDecoder.pth")
     print("Model saved successfully.")
 else:
     torch.save(model.state_dict(), "RandomInitializedEncoderDecoder.pth")

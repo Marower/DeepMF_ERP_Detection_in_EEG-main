@@ -61,19 +61,23 @@ with h5py.File(dataFile, 'r') as f:
 
 
 device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-tolerance = 20
+tolerance = 25
 #set r peak sensitivity parameter
-R_peak_threshold = 0.15
-min_peak_distance = 20
+R_peak_threshold = 0.2
+min_peak_distance = 25
 
 
 result = []
 N = len(X_list)
 for i in range(N):
+    print(i)
     metrics = {
         "tp_deepMF": 0,
         "fp_deepMF": 0,
         "fn_deepMF": 0,
+        "tp_deepMF_He": 0,
+        "fp_deepMF_He": 0,
+        "fn_deepMF_He": 0,
         "tp_rand": 0,
         "fp_rand": 0,
         "fn_rand": 0
@@ -81,6 +85,10 @@ for i in range(N):
     deep_Matched_Model = DeepMatchedDetector()
     deep_Matched_Model_File = "./ERPDetectors/DeepMatchedFilterERPDetector_" + str(i) + ".pth"
     deep_Matched_Model.load_state_dict(torch.load(deep_Matched_Model_File, map_location=device))
+
+    deep_Matched_Model_He = DeepMatchedDetector()
+    deep_Matched_Model_He_File = "./ERPDetectors/DeepMatchedFilterERPDetector_" + str(i) + "_He.pth"
+    deep_Matched_Model_He.load_state_dict(torch.load(deep_Matched_Model_He_File, map_location=device))
 
     random_initialized_Model = DeepMatchedDetector()
     random_initialized_file = "./ERPDetectors/RandomERPDetector_" + str(i) + ".pth"
@@ -104,6 +112,7 @@ for i in range(N):
         x = x.to(device)
         random_initialized_Model.to(device)
         deep_Matched_Model.to(device)
+        deep_Matched_Model_He.to(device)
         # Change shape from (500, 4) → (1, 4, 500)
         x = x.unsqueeze(0)
 
@@ -111,6 +120,10 @@ for i in range(N):
         with torch.no_grad():
             output_deep_MF = deep_Matched_Model(x)
             output_deep_MF = output_deep_MF.detach().cpu().numpy().squeeze()
+
+            output_deep_MF_He = deep_Matched_Model_He(x)
+            output_deep_MF_He = output_deep_MF_He.detach().cpu().numpy().squeeze()
+
             output_rand = random_initialized_Model(x)
             output_rand = output_rand.detach().cpu().numpy().squeeze()
 
@@ -118,13 +131,19 @@ for i in range(N):
         tp, fp, fn = compute_metrics(detected_peaks_deep_MF, target_peaks, tolerance=tolerance)
         metrics["tp_deepMF"] += tp
         metrics["fp_deepMF"] += fp
-        metrics["fn_deepMF"]+= fn
+        metrics["fn_deepMF"] += fn
+
+        detected_peaks_deep_MF_He, peaks_amplitude = find_peaks(output_deep_MF_He, height=R_peak_threshold, distance=min_peak_distance)
+        tp, fp, fn = compute_metrics(detected_peaks_deep_MF_He, target_peaks, tolerance=tolerance)
+        metrics["tp_deepMF_He"] += tp
+        metrics["fp_deepMF_He"] += fp
+        metrics["fn_deepMF_He"] += fn
 
         detected_peaks_rand, peaks_amplitude = find_peaks(output_rand, height=R_peak_threshold, distance=min_peak_distance)
         tp, fp, fn = compute_metrics(detected_peaks_rand, target_peaks, tolerance=tolerance)
         metrics["tp_rand"] += tp
         metrics["fp_rand"] += fp
-        metrics["fn_rand"]+= fn
+        metrics["fn_rand"] += fn
 
     result.append(metrics)
 
@@ -132,4 +151,4 @@ for i in range(N):
 result_array = np.array(result)
 
 # save to matlab file
-sio.savemat('results.mat', {'results': result_array})
+sio.savemat('LOO_results.mat', {'results': result_array})

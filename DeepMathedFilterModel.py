@@ -8,15 +8,19 @@ class EncoderDecoder(nn.Module):
             #Conv1d(in_channels, out_channels, kernel_size,)
             nn.Conv1d(4, 6, 200, stride=1, padding=1),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Conv1d(6, 6, 50, stride=1, padding=1),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
+            nn.Conv1d(6, 6, 50, stride=1, padding=1),
+            nn.ReLU(),
             nn.Conv1d(6, 6, 50, stride=1, padding=1),
             nn.Sigmoid(),
   
         )
         self.decoder = nn.Sequential(
+            nn.ConvTranspose1d(6, 6, 50, stride=1,padding=1),
+            nn.ReLU(),
             nn.ConvTranspose1d(6, 6, 50, stride=1,padding=1),
             nn.ReLU(),
             nn.ConvTranspose1d(6, 6, 50, stride=1, padding=1),
@@ -33,25 +37,23 @@ class DeepMatchedDetector(nn.Module):
         super().__init__()
 
         self.encoder = nn.Sequential(
-            nn.Conv1d(4, 6, 200, stride=1, padding=1),
+nn.Conv1d(4, 6, 200, stride=1, padding=1),
             nn.ReLU(),
-            nn.Dropout(0.5),
-
+            nn.Dropout(0.2),
             nn.Conv1d(6, 6, 50, stride=1, padding=1),
             nn.ReLU(),
-            nn.Dropout(0.5),
-
+            nn.Dropout(0.2),
             nn.Conv1d(6, 6, 50, stride=1, padding=1),
             nn.ReLU(),
+            nn.Conv1d(6, 6, 50, stride=1, padding=1),
+            nn.Sigmoid(),
         )
 
         self.detector = nn.Sequential(
-            nn.Conv1d(6, 6, 50),
+            nn.Conv1d(6, 4, 25),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(960, 500),
-            nn.ReLU(),
-            nn.Linear(500, 500)  # new layer
+            nn.Linear(552, 300),
         )
 
     def forward(self, x):

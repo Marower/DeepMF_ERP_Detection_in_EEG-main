@@ -30,9 +30,32 @@ templates = aveERP(:,50:249);
 templates(:,1:30) = 0;
 templates(:,190:200) = 0;
 templates = smoothdata(templates, 'gaussian', 20);
+% Initialization of ReLU
+for i =1:4
+    templates(i,:) = templates(i,:) - mean(templates(i,:));
+    templates(i,:) = templates(i,:) ./ std(templates(i,:));
+   
+end
+use_He = false;
+file_name = 'channels_templates';
+if use_He
+ % "Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification"
+
+ % Step 3: He scaling
+    [kh, kw, Cin] = size(templates);
+    
+    fan_in = kh * kw * Cin;
+    scale = sqrt(2 / fan_in);
+    
+    templates = templates * scale;
+    file_name = strcat(file_name,'_He');
+end
+file_name = strcat(file_name,'.mat');
 %Flip templates for Matched Filter
 templates = fliplr(templates);
-save('channels_templates.mat', 'templates', '-v7.3');
+save(file_name, 'templates', '-v7.3');
+
+
 for i =1:4
     subplot(2,2,i)
     plot(templates(i,:))

@@ -18,12 +18,12 @@ for subi=1:length(data)
     event_nr = length(EEG.event);
     
     % Select samples with events, with overlaping
-    num_windows = 6;
+    num_windows = 12;
     template_size = 200;
     step = floor((window_size - template_size) / num_windows);
     N = num_windows*event_nr;
     x_positive = zeros(N, 4, window_size);
-    y_positive = zeros(N, 1, window_size);
+    y_positive = zeros(N, 1, window_size-template_size);
     for eventi =1:event_nr
         latency = EEG.event(eventi).latency;
         start = latency-(window_size - template_size);
@@ -65,7 +65,7 @@ for subi=1:length(data)
 
     selectedStarts = validStarts(randperm(length(validStarts), N));
     x_negative = zeros(N,size(EEG.data,1), window_size);
-    y_negative = zeros(N,1, window_size);
+    y_negative = zeros(N,1, window_size-template_size);
     for i = 1:N
         idx = selectedStarts(i);
         x_negative(i,:,:) = EEG.data(:, idx:idx+window_size-1);

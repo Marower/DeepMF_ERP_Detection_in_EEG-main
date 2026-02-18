@@ -4,12 +4,16 @@ import torch
 from torch.utils.data import TensorDataset, DataLoader
 from DeepMathedFilterModel import EncoderDecoder, DeepMatchedDetector
 
-use_templates = False
+use_templates = True
+use_He = False
 device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 # Load pretrained model
 pretrained_model = EncoderDecoder()
 if use_templates:
-    pretrained_model.load_state_dict(torch.load("TemplateInitializedEncoderDecoder.pth", map_location=device))
+    if use_He:
+        pretrained_model.load_state_dict(torch.load("TemplateInitializedEncoderDecoder_He.pth", map_location=device))
+    else:
+        pretrained_model.load_state_dict(torch.load("TemplateInitializedEncoderDecoder.pth", map_location=device))
 else:
     pretrained_model.load_state_dict(torch.load("RandomInitializedEncoderDecoder.pth", map_location=device))
 
@@ -59,7 +63,7 @@ for i in range(N):
     
 
     # Suppose positive events (EP) are rare
-    pos_weight = torch.tensor([10.0], device=device)  # weight for class 1
+    pos_weight = torch.tensor([3.0], device=device)  # weight for class 1
 
     criterion = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     optimizer = torch.optim.Adam(detector_model.parameters(), lr=1e-3)
@@ -85,10 +89,13 @@ for i in range(N):
 
         # Save model after training
     if use_templates:
-        save_file = "DeepMatchedFilterERPDetector_" 
+        if use_He:
+             save_file = "DeepMatchedFilterERPDetector_" + str(i) + '_He'
+        else:
+            save_file = "DeepMatchedFilterERPDetector_" + str(i) 
     else:
-        save_file = "RandomERPDetector_"
+        save_file = "RandomERPDetector_" + str(i) 
 
-    save_file = save_file + str(i) + ".pth"
+    save_file = "./ERPDetectors/"+ save_file + ".pth"
     torch.save(detector_model.state_dict(), save_file)
     print("Model saved successfully: " + save_file)

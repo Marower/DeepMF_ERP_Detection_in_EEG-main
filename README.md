@@ -35,4 +35,4 @@ Set useTemplates flag if you want to use templates to initialize model. Trained 
 
 8. The Jupyter notebook testERPDetector.ipynb contains basic tests to verify the correct operation of the models.
 
-9. 
+9. Script leaceOneOutValidiation perform LOO for all trained networks, results are saved in LOO_results.mat. Use plotF1scoreForLOOO.m for visualization.

@@ -61,10 +61,10 @@ with h5py.File(dataFile, 'r') as f:
 
 
 device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-tolerance = 25
+tolerance = 30
 #set r peak sensitivity parameter
-R_peak_threshold = 0.2
-min_peak_distance = 25
+R_peak_threshold = 0.25
+min_peak_distance = 30
 
 
 result = []

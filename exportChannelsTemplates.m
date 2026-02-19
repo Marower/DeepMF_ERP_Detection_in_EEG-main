@@ -52,7 +52,7 @@ if use_He
 end
 file_name = strcat(file_name,'.mat');
 %Flip templates for Matched Filter
-templates = fliplr(templates);
+%templates = fliplr(templates);
 save(file_name, 'templates', '-v7.3');
 
 

@@ -4,7 +4,7 @@ import torch
 from torch.utils.data import TensorDataset, DataLoader
 from DeepMathedFilterModel import EncoderDecoder, DeepMatchedDetector
 
-use_templates = True
+use_templates = False
 use_He = False
 device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 # Load pretrained model
@@ -68,7 +68,7 @@ for i in range(N):
     criterion = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     optimizer = torch.optim.Adam(detector_model.parameters(), lr=1e-3)
 
-    for epoch in range(250):
+    for epoch in range(50):
         running_loss = 0.0
         for xb, yb in train_loader:
             xb = xb.to(device)  # (batch, 4, 500)

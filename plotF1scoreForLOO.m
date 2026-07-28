@@ -1,9 +1,14 @@
 load("LOO_results.mat")
-
+load("MF_results.mat")
 F1_deepMF(size(results)) = 0;
 F1_deepMF_He(size(results)) = 0;
 F1_rand(size(results)) = 0;
+F1_MF(size(results)) = 0;
 
+Precision_deepMF(size(results)) = 0;
+Sensitivity_deepMF(size(results)) = 0;
+Precision_rand(size(results)) = 0;
+Sensitivity_rand(size(results)) = 0;
 for i = 1:length(results)
     TP = results{i}.tp_deepMF;
     FN = results{i}.fn_deepMF;
@@ -22,7 +27,10 @@ for i = 1:length(results)
     FP = double(FP);
     FN = double(FN);
     Sensitivity = TP ./ (TP + FN);
-    Precision   = TP ./ (TP + FP);
+    Precision   = TP ./ (TP + FP);  
+    Precision_deepMF(i) = Precision;
+    Sensitivity_deepMF(i) = Sensitivity;
+  
     F1_deepMF_He(i) = 2 * (Precision .* Sensitivity) ./ (Precision + Sensitivity);
 
     TP = results{i}.tp_rand;
@@ -33,10 +41,25 @@ for i = 1:length(results)
     FN = double(FN);
     Sensitivity = TP ./ (TP + FN);
     Precision   = TP ./ (TP + FP);
+    Precision_rand(i) = Precision;
+    Sensitivity_rand(i) = Sensitivity;
     F1_rand(i) = 2 * (Precision .* Sensitivity) ./ (Precision + Sensitivity);
+
+    TP = MF_results{i}.tp_MF;
+    FN = MF_results{i}.fn_MF;
+    FP = MF_results{i}.fp_MF;
+    TP = double(TP);
+    FP = double(FP);
+    FN = double(FN);
+    Sensitivity = TP ./ (TP + FN);
+    Precision   = TP ./ (TP + FP);
+    Precision_rand(i) = Precision;
+    Sensitivity_rand(i) = Sensitivity;
+    F1_MF(i) = 2 * (Precision .* Sensitivity) ./ (Precision + Sensitivity);
+
 end
 %%
-F1_all = [F1_rand(:), F1_deepMF_He(:)];
+F1_all = [F1_MF(:), F1_rand(:), F1_deepMF_He(:)];
 
 figure;
 b = bar(F1_all, 'grouped');
@@ -47,6 +70,7 @@ title('LOO Performance per Participant')
 ylim([0 1])
 grid on
 m = mean(F1_all);
-label1 = strcat('Standard Initialization, mean(F1) = ', num2str(m(1),'%.2f')); 
-label2 = strcat('Deep-MF, mean(F1) = ', num2str(m(2),'%.2f')); 
-legend({label1,label2}, 'Location','best')
+label0 = strcat('Matched Filter, mean(F1) = ', num2str(m(1),'%.2f')); 
+label1 = strcat('Standard Initialization, mean(F1) = ', num2str(m(2),'%.2f')); 
+label2 = strcat('Deep-MF, mean(F1) = ', num2str(m(3),'%.2f')); 
+legend({label0,label1,label2}, 'Location','best')
